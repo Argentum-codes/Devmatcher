@@ -1,0 +1,20 @@
+{
+  "name": "devmatcher",
+  "version": "1.0.0",
+  "description": "Matching Devs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/app.js",
+    "start": "node src/app.js"
+  },
+  "keywords": [
+    "nodejs",
+    "javascript",
+    "backend"
+  ],
+  "author": "Argha Guha",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
