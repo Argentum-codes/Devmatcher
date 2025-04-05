@@ -3,26 +3,86 @@ const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
 
+app.use(express.json());//to parse the incoming request body as json-- runs on every req for every route
+
 //post api to add a data to database-- signup the user
 app.post("/signup", async (req, res) => {
-    const userObj = {
-        firstName: "Argha",
-        lastName: "Guha",
-        emailId: "argha@guha.com",
-        password: "123456",
-    }
 
-    const user = new User(userObj);//creating a new instance of the user model
+    console.log(req.body);
+
+    const user = new User(req.body);//creating a new instance of the user model
     
     try{
         await user.save();//returns a promise( true for most mongoose func -- use async await)
 
-    res.send("User created successfully");
+        res.send("User created successfully");
 
     }catch (err) {
         res.status(400).send("Error creating user" + err.message);
     }
     
+})
+
+app.get("/user", async (req, res) => {
+    const useremailId = req.body.emailId;
+
+    try{
+        const users = await User.find({emailId : useremailId});//ans array of json
+        if(users.length === 0){
+            return res.status(404).send("User not found");
+        }else {
+            res.send(users);
+        }
+        
+    } catch (err){
+        res.status(400).send("Error fetching user " + err.message);
+    }
+    
+})
+
+app.get("/feed", async (req, res) => {
+    try{
+        const users = await User.find({});//ans array of json
+        if(users.length === 0){
+            return res.status(404).send("Users not found");
+        }else {
+            res.send(users);
+        }
+        
+    } catch (err){
+        res.status(400).send("Error fetching users " + err.message);
+    }
+})
+
+app.delete("/user", async (req, res) => {
+    const userId = req.body.userId;
+    try{
+        const user = await User.findByIdAndDelete(userId);
+        if(!user){
+            return res.status(404).send("User not found");
+        }else {
+            res.send("User deleted successfully");
+        }
+        
+    } catch (err){
+        res.status(400).send("Error deleting user " + err.message);
+    }
+})
+
+app.patch("/user", async (req, res) => {
+    const userId= req.body.userId;
+    const data = req.body;
+    // console.log(data);
+    try{
+        const user = await User.findByIdAndUpdate(userId, data);
+        if(!user){
+            return res.status(404).send("User not found");
+        }else {
+            res.send("User Update successfully");
+        }
+    }catch(err){
+        res.status(400).send("Something went wrong " + err.message);
+    }
 })
 
 connectDB().then(() => {
@@ -32,7 +92,7 @@ connectDB().then(() => {
     });
     
 }).catch((err) => {
-    console.log("Error connecting to the database", err);
+    console.log("Error connecting to the database ", err);
 })
 
 
