@@ -2,25 +2,62 @@ const express = require('express');
 const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
+const { validateSignUpData } = require("./utils/validation");
+const bcrypt = require("bcryptjs");
 
 app.use(express.json());//to parse the incoming request body as json-- runs on every req for every route
 
 //post api to add a data to database-- signup the user
 app.post("/signup", async (req, res) => {
-
-    console.log(req.body);
-
-    const user = new User(req.body);//creating a new instance of the user model
-    
     try{
+        //Validation of data
+        validateSignUpData(req);
+        //utility or helper functions for such activities
+        const {firstName, lastName, emailId, password} = req.body;
+        //Encrypt the password
+        const passwordHash = await bcrypt.hash(password, 10);//returns a promise
+        // console.log(passwordHash);
+
+        // console.log(req.body);
+
+        const user = new User({
+            firstName,
+            lastName,
+            emailId,
+            password: passwordHash,
+            //fields other than these are ignored
+        });//creating a new instance of the user model
+    
+    
         await user.save();//returns a promise( true for most mongoose func -- use async await)
 
         res.send("User created successfully");
 
     }catch (err) {
-        res.status(400).send("Error creating user" + err.message);
+        res.status(400).send("ERROR: " + err.message);
     }
     
+})
+
+app.post("/login", async (req, res) => {
+    try{
+        const {emailId, password} = req.body;
+
+        const user = await User.findOne({emailId: emailId});
+        if(!user){
+            throw new Error("User not found");
+        }
+        
+        const isPasswordValid = await bcrypt.compare(password, user.password );
+        if(isPasswordValid){
+            res.send("Login Successfull");
+        }else{
+            throw new Error("Invalid password");
+        }
+
+    }catch (err){
+        res.status(400).send("ERROR: "+ err.message);
+    }
 })
 
 app.get("/user", async (req, res) => {
@@ -87,7 +124,7 @@ app.patch("/user:userId", async (req, res) => {
         if(data?.skills.length > 10){
             throw new Error("Skills cannot be more than 10");
         }
-        
+
         const user = await User.findByIdAndUpdate(userId, data, {
             returnDocument: "after",
             runValidators: true,
