@@ -52,13 +52,15 @@ app.post("/login", async (req, res) => {
             throw new Error("User not found");
         }
         
-        const isPasswordValid = await bcrypt.compare(password, user.password );
+        // const isPasswordValid = await bcrypt.compare(password, user.password );
+        const isPasswordValid = await user.validatePassword(password);
         if(isPasswordValid){
 
             //Create a JWT token
-            const token = await jwt.sign({ _id : user._id}, "DEV@Baby10", {
-                expiresIn: "1d"
-            });
+            // const token = await jwt.sign({ _id : user._id}, "DEV@Baby10", {
+            //     expiresIn: "1d"
+            // });
+            const token = await user.getJWT();
             // console.log(token);
             //Add the token to cookie and send the response back to the user
             //express--res.cookie
