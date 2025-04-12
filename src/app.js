@@ -4,8 +4,11 @@ const app = express();
 const User = require("./models/user");
 const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcryptjs");
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 app.use(express.json());//to parse the incoming request body as json-- runs on every req for every route
+app.use(cookieParser());
 
 //post api to add a data to database-- signup the user
 app.post("/signup", async (req, res) => {
@@ -50,11 +53,47 @@ app.post("/login", async (req, res) => {
         
         const isPasswordValid = await bcrypt.compare(password, user.password );
         if(isPasswordValid){
+
+            //Create a JWT token
+            const token = await jwt.sign({ _id : user._id}, "DEV@Baby10");
+            // console.log(token);
+            //Add the token to cookie and send the response back to the user
+            //express--res.cookie
+            res.cookie("token", token);
+
             res.send("Login Successfull");
         }else{
             throw new Error("Invalid password");
         }
 
+    }catch (err){
+        res.status(400).send("ERROR: "+ err.message);
+    }
+})
+
+app.get("/profile", async (req, res) => {
+    try{
+        const cookies = req.cookies;
+
+        const {token} = cookies;
+        if(!token){
+            throw new Error("Invalid Token");
+        }
+        //validate token
+        const decodedMessage= await jwt.verify(token, "DEV@Baby10");
+        // console.log(decodedMessage);
+
+        const {_id} =decodedMessage;
+        // console.log("logged in user is: "+ _id);
+
+        const user = await User.findById(_id);
+
+        if(!user){
+            throw new Error("User not found");
+        }
+
+        // console.log(cookies);
+        res.send(user);
     }catch (err){
         res.status(400).send("ERROR: "+ err.message);
     }
