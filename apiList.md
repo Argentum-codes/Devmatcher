@@ -13,6 +13,7 @@ profileRouter
 connectionRequestRouter
 -POST /request/send/interested/:userId
 -POST /request/send/ignore/:userId
+in the above to make the status part dynamic
 -POST /request/review/accepted/:requestId
 -POST /request/review/rejected/:requestId
 
