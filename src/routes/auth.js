@@ -43,7 +43,7 @@ authRouter.post("/login", async (req, res) => {
 
         const user = await User.findOne({emailId: emailId});
         if(!user){
-            throw new Error("User not found");
+            throw new Error("Invalid credentials");
         }
         
         // const isPasswordValid = await bcrypt.compare(password, user.password );
@@ -64,12 +64,22 @@ authRouter.post("/login", async (req, res) => {
 
             res.send("Login Successfull");
         }else{
-            throw new Error("Invalid password");
+            throw new Error("Invalid credentials");
         }
 
     }catch (err){
         res.status(400).send("ERROR: "+ err.message);
     }
 }) 
+
+authRouter.post("/logout", async (req, res) => {
+
+    //might do some clean up activities before this eg., for the db
+
+    res.cookie("token", null, {
+        expires: new Date(Date.now())
+    })
+    res.send("Logout Successful");//can chain res.cookie().send()
+})
 
 module.exports = authRouter;

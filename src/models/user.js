@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
-    photourl:{
+    photoUrl:{
         type: String,
         default:"https://static.vecteezy.com/system/resources/previews/020/987/083/non_2x/user-icon-fake-photo-sign-profile-button-simple-style-social-media-poster-background-symbol-user-brand-logo-design-element-user-t-shirt-printing-for-sticker-free-vector.jpg",
         validate(value){
