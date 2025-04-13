@@ -14,6 +14,7 @@ connectionRequestRouter
 -POST /request/send/interested/:userId
 -POST /request/send/ignore/:userId
 in the above to make the status part dynamic
+these 2 can have a single api as well
 -POST /request/review/accepted/:requestId
 -POST /request/review/rejected/:requestId
 

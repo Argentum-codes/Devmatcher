@@ -2,6 +2,8 @@ const express = require("express");
 const {userAuth} = require("../middlewares/auth");
 const  ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
+const ConnectionRequestModel = require("../models/connectionRequest");
+const { connection } = require("mongoose");
 
 const requestRouter = express.Router();
 
@@ -70,6 +72,41 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
 
     }catch(err){
             res.status(400).send("ERROR: " + err.message);
+    }
+})
+
+requestRouter.post("/request/review/:status/:requestId", userAuth, async (req, res) => {
+    //after path think if u need a middleware -- here needed as user should be loggedin
+    try{
+        const loggedInUser = req.user;
+
+        const allowedStatus = ["accepted", "rejected"];
+        const {status, requestId} = req.params;
+        if(!allowedStatus.includes(status)){
+            return res.status(400).json({message:"Status is not valid "});
+        }
+
+        const connectionRequest = await ConnectionRequest.findOne({
+            _id: requestId,
+            toUserId: loggedInUser._id,
+            status: "interested"
+        })
+        if(!connectionRequest){
+            return res.status(400).json({message:"Connection Request not found"});
+        }
+
+        connectionRequest.status = status;
+        const data = await connectionRequest.save();
+
+        res.json({message: "Connection Request " + status, data});
+        //valdiate the status
+        //req id should be valid
+
+        //A => B
+        //is B loggedin?(touserId person can accept or reject a req-- only if existing req in interested state)
+
+    }catch(err){
+        res.status(400).send("ERROR: " + err.message);
     }
 })
 
