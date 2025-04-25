@@ -26,9 +26,17 @@ authRouter.post("/signup", async (req, res) => {
         });//creating a new instance of the user model
     
     
-        await user.save();//returns a promise( true for most mongoose func -- use async await)
+        const savedUser = await user.save();//returns a promise( true for most mongoose func -- use async await)
+        const token = await savedUser.getJWT();
+         
+        res.cookie("token", token, {
+            expires: new Date(Date.now() + 1*24*60*60*1000),//1 day
+        });
 
-        res.send("User created successfully");
+
+        
+
+        res.json({message: "User created successfully", data: savedUser});//what is res.send instead of res.json used
 
     }catch (err) {
         res.status(400).send("ERROR: " + err.message);
