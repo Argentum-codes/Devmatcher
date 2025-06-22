@@ -10,6 +10,8 @@ const requestRouter = require("./routes/request");
 const userRouter = require('./routes/user');
 const cors = require('cors');
 
+require("dotenv").config();//to read the env variables from .env file
+
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true,
@@ -108,7 +110,7 @@ app.use("/", userRouter);
 
 connectDB().then(() => {
     console.log("Connected to the database");
-    app.listen(3001, () => {
+    app.listen(process.env.PORT, () => {
         console.log('Server is running on port 3001');
     });
     
