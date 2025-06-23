@@ -5,6 +5,9 @@ const User = require("../models/user");
 const ConnectionRequestModel = require("../models/connectionRequest");
 const { connection } = require("mongoose");
 
+
+const sendEmail = require("../utils/sendEmail"); 
+
 const requestRouter = express.Router();
 
 requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res) => {
@@ -58,6 +61,12 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
 
         const data = await connectionRequest.save();
 
+        // const emailRes = await sendEmail.run("A new connection request ",
+        //     req.user.firstName + " is interested in " + toUser.firstName
+        // );
+        // console.log("Email sent successfully", emailRes);
+        
+
         if(status === "interested"){
             res.json({
                 message: req.user.firstName + " is interested in " + toUser.firstName,
@@ -97,6 +106,8 @@ requestRouter.post("/request/review/:status/:requestId", userAuth, async (req, r
 
         connectionRequest.status = status;
         const data = await connectionRequest.save();
+
+       
 
         res.json({message: "Connection Request " + status, data});
         //valdiate the status
