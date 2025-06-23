@@ -6,7 +6,7 @@ const ConnectionRequestModel = require("../models/connectionRequest");
 const { connection } = require("mongoose");
 
 
-const sendEmail = require("../utils/sendEmail"); 
+// const sendEmail = require("../utils/sendEmail"); 
 
 const requestRouter = express.Router();
 
